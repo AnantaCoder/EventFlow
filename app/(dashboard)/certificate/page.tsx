@@ -1,4 +1,5 @@
 "use client";
+import { Input, Label, FormField } from "@/components/ui/form";
 
 import { useState } from "react";
 
@@ -48,19 +49,16 @@ export default function CertificatePage() {
     <div className="p-10 max-w-xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Generate Certificate</h1>
 
-      <input
-        className="border p-3 w-full mb-4"
-        placeholder="Recipient Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+    <FormField>
+  <Label>Field Name</Label>
+  <Input type="text" />
+</FormField>
 
-      <input
-        className="border p-3 w-full mb-4"
-        placeholder="Recipient Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+    <FormField>
+  <Label>Field Name</Label>
+  <Input type="text" />
+</FormField>
+
 
       <select
         className="border p-3 w-full mb-4"

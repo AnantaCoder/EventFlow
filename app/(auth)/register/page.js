@@ -100,7 +100,8 @@ export default function RegisterPage() {
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit}>
+               <form onSubmit={(e)=>e.preventDefault()}>
+
                     <div style={{ marginBottom: "20px" }}>
                         <label style={labelStyle}>Full Name</label>
                         <input

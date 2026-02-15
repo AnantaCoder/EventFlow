@@ -1,4 +1,5 @@
 'use client';
+import { Input, Label, FormField } from "@/components/ui/form";
 
 import { useState, useEffect } from "react";
 import { User, Mail, Calendar, Award, Users, Clock, Edit2, Save, X, Shield } from "lucide-react";
@@ -193,13 +194,11 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.name}
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                        className="text-2xl font-bold text-slate-900 bg-slate-50 border border-slate-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Your name"
-                      />
+                     <FormField>
+  <Label>Field Name</Label>
+  <Input type="text" />
+</FormField>
+
                     ) : (
                       <h2 className="text-2xl font-bold text-slate-900">{user?.name || "Unknown"}</h2>
                     )}
