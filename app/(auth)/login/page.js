@@ -1,13 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,8 +24,11 @@ export default function LoginPage() {
 
             if (res.ok) {
                 const role = data.user?.role || "participant";
-                console.log("Redirecting to:", role);
-                router.push("/" + role);
+                console.log("Login successful, redirecting to:", role);
+                // Delay slightly to ensure cookie is set, then redirect
+                setTimeout(() => {
+                    window.location.replace("/" + role);
+                }, 200);
             } else {
                 setError(data.error || "Invalid credentials");
             }
