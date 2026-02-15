@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import styles from './login.module.css';
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -17,76 +15,143 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const result = await signIn("credentials", {
-                email,
-                password,
-                redirect: false,
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
             });
 
-            if (result?.error) {
-                setError("Invalid email or password");
-                setLoading(false);
+            const data = await res.json();
+
+            if (res.ok) {
+                const role = data.user?.role || "participant";
+                window.location.href = `/${role}`;
             } else {
-                router.push("/dashboard");
-                router.refresh();
+                setError(data.error || "Invalid credentials");
             }
         } catch (err) {
             setError("Something went wrong. Please try again.");
+        } finally {
             setLoading(false);
         }
     };
 
+    const containerStyle = {
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundImage: "url('/auth-bg.jpg')",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center center",
+        backgroundSize: "cover",
+    };
+
+    const boxStyle = {
+        width: "380px",
+        padding: "40px",
+        borderRadius: "20px",
+        background: "rgba(255, 255, 255, 0.15)",
+        backdropFilter: "blur(30px) saturate(200%)",
+        WebkitBackdropFilter: "blur(25px) saturate(180%)",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.15)",
+        color: "white",
+    };
+
+    const inputStyle = {
+        width: "100%",
+        padding: "12px 16px",
+        borderRadius: "12px",
+        background: "rgba(255, 255, 255, 0.1)",
+        border: "1px solid rgba(255, 255, 255, 0.25)",
+        color: "white",
+        fontSize: "14px",
+        outline: "none",
+        marginTop: "8px",
+    };
+
+    const buttonStyle = {
+        width: "100%",
+        padding: "14px",
+        borderRadius: "14px",
+        background: "#2563eb",
+        color: "white",
+        fontWeight: "600",
+        fontSize: "16px",
+        border: "none",
+        cursor: "pointer",
+        marginTop: "24px",
+        boxShadow: "0 10px 20px rgba(37, 99, 235, 0.25)",
+    };
+
+    const labelStyle = {
+        fontSize: "12px",
+        fontWeight: "500",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
+        opacity: 0.9,
+    };
+
     return (
-        <div className={styles.container}>
-            <div className={styles.loginBox}>
-                <div className="text-center">
-                    <h2 className="text-3xl font-bold tracking-tight text-white">Welcome back</h2>
+        <div style={containerStyle}>
+            <div style={boxStyle}>
+                <div style={{ textAlign: "center" }}>
+                    <h2 style={{ fontSize: "28px", fontWeight: "700" }}>Welcome back</h2>
                 </div>
                 <form onSubmit={handleSubmit}>
-                    <div className="space-y-3 mt-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 uppercase">Email</label>
+                    <div style={{ marginTop: "24px" }}>
+                        <div style={{ marginBottom: "16px" }}>
+                            <label style={labelStyle}>Email</label>
                             <input
                                 type="email"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-slate-600 bg-white/10 px-4 py-2.5 text-white placeholder-slate-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                                disabled={loading}
+                                style={inputStyle}
                                 placeholder="you@example.com"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 uppercase">Password</label>
+                            <label style={labelStyle}>Password</label>
                             <input
                                 type="password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-slate-600 bg-white/10 px-4 py-2.5 text-white placeholder-slate-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                                disabled={loading}
+                                style={inputStyle}
                                 placeholder="••••••••"
                             />
                         </div>
                     </div>
 
                     {error && (
-                        <div className="mt-3 text-red-400 text-sm text-center bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                        <div style={{ 
+                            marginTop: "16px", 
+                            padding: "12px", 
+                            borderRadius: "8px",
+                            background: "rgba(239, 68, 68, 0.2)", 
+                            border: "1px solid rgba(239, 68, 68, 0.3)",
+                            color: "#fca5a5",
+                            fontSize: "13px",
+                            textAlign: "center"
+                        }}>
                             {error}
                         </div>
                     )}
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="mt-5 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold text- hover:bg-primary-700 transition shadow-lg shadow-primary-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? "Signing in..." : "Sign In"}
-                        </button>
-                    </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        style={{...buttonStyle, opacity: loading ? 0.6 : 1}}
+                    >
+                        {loading ? "Signing in..." : "Sign In"}
+                    </button>
                 </form>
-                <div className="mt-4 text-center text-sm text-slate-300">
-                    Don&apos;t have an account?{' '}
-                    <a href="/register" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition">
+                <div style={{ marginTop: "20px", textAlign: "center", fontSize: "14px" }}>
+                    Don't have an account?{' '}
+                    <a href="/register" style={{ color: "#60a5fa", fontWeight: "600" }}>
                         Sign Up
                     </a>
                 </div>
