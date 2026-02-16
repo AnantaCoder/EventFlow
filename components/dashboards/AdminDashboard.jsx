@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Loader from '@/components/common/Loader';
+
 import DashboardWidget from './shared/DashboardWidget';
 import './AdminDashboard.css';
 
@@ -9,6 +11,8 @@ import './AdminDashboard.css';
  * @param {import('./types').DashboardProps} props
  */
 export default function AdminDashboard({ userId, role }) {
+    const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
   return (
     <div className="admin-dashboard">
       <div className="dashboard-header">
