@@ -8,44 +8,7 @@ import Aurora from "@/components/common/Aurora";
 import Navbar from "@/components/common/Navbar";
 import { validateRegister } from "@/utils/validateRegister";
 
-
-
-
 const styles = {
-  page: {
-    minHeight: "100vh",
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "24px",
-    backgroundImage: "url(/auth-bg.jpg)",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-  },
-  card: {
-    width: "100%",
-    maxWidth: "440px",
-    padding: "40px",
-    borderRadius: "16px",
-    background: "rgba(15, 23, 42, 0.85)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-  },
-  input: {
-    width: "100%",
-    padding: "14px 16px",
-    borderRadius: "10px",
-    background: "rgba(255, 255, 255, 0.08)",
-    border: "1px solid rgba(255, 255, 255, 0.15)",
-    color: "#ffffff",
-    fontSize: "15px",
-    outline: "none",
-    boxSizing: "border-box",
-  },
   label: {
     display: "block",
     fontSize: "12px",
@@ -71,9 +34,9 @@ function InputField({ label, type, name, value, onChange, disabled, placeholder,
         value={value}
         onChange={onChange}
         disabled={disabled}
+        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
         style={{
-          ...styles.input,
-          border: error ? "1px solid #ef4444" : styles.input.border
+          border: error ? "1px solid #ef4444" : undefined
         }}
         placeholder={placeholder}
       />
@@ -85,7 +48,6 @@ function InputField({ label, type, name, value, onChange, disabled, placeholder,
     </div>
   );
 }
-
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -104,64 +66,62 @@ export default function RegisterPage() {
   });
   const [errors, setErrors] = useState({});
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
- const handleChange = (e) => {
-  const { name, value } = e.target;
-
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-
-  if (errors[name]) {
-    setErrors((prev) => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: "",
+      [name]: value,
     }));
-  }
-};
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
 
-  const validationErrors = validateRegister(formData);
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  setErrors({});
-  setStatus({ error: "", success: "", loading: true });
-
-  try {
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || "Registration failed");
+    const validationErrors = validateRegister(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
 
-    setStatus({
-      error: "",
-      success: "Registration successful! Redirecting to login...",
-      loading: false,
-    });
+    setErrors({});
+    setStatus({ error: "", success: "", loading: true });
 
-    setTimeout(() => router.push("/login"), 1500);
-  } catch (err) {
-    setStatus({
-      error: err.message || "Something went wrong.",
-      success: "",
-      loading: false,
-    });
-  }
-};
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      setStatus({
+        error: "",
+        success: "Registration successful! Redirecting to login...",
+        loading: false,
+      });
+
+      setTimeout(() => router.push("/login"), 1500);
+    } catch (err) {
+      setStatus({
+        error: err.message || "Something went wrong.",
+        success: "",
+        loading: false,
+      });
+    }
+  };
 
   return (
     <main className="bg-space-900 relative min-h-screen">
@@ -217,6 +177,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               disabled={status.loading}
               placeholder="Enter your email"
+              error={errors.email}
             />
 
             <InputField
@@ -231,28 +192,28 @@ export default function RegisterPage() {
             />
 
             <div style={{ marginBottom: "24px" }}>
-            <label style={styles.label}>I am a</label>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              disabled={status.loading}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
-            >
-              <option value="participant">Participant</option>
-              <option value="mentor">Mentor</option>
-              <option value="judge">Judge</option>
-              <option value="admin">Admin</option>
-            </select>
+              <label style={styles.label}>I am a</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                disabled={status.loading}
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
+              >
+                <option value="participant">Participant</option>
+                <option value="mentor">Mentor</option>
+                <option value="judge">Judge</option>
+              </select>
+            </div>
 
             {status.error && (
-              <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-center">
+              <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-center mb-4">
                 {status.error}
               </div>
             )}
 
             {status.success && (
-              <div className="text-green-400 text-sm bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-center">
+              <div className="text-green-400 text-sm bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-center mb-4">
                 {status.success}
               </div>
             )}
@@ -265,7 +226,6 @@ export default function RegisterPage() {
               {status.loading ? "Creating Account..." : "Sign Up"}
               {!status.loading && <ArrowRight className="w-4 h-4" />}
             </button>
-            </div>
 
             <div className="mt-6 text-center text-sm text-slate-500 font-mono">
               Already have an account?{" "}
@@ -276,14 +236,9 @@ export default function RegisterPage() {
                 Sign In
               </Link>
             </div>
-
           </form>
         </div>
       </section>
     </main>
   );
 }
-
-
-
-
