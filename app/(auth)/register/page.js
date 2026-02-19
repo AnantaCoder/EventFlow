@@ -7,53 +7,66 @@ import { ArrowRight, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/common/Navbar";
 import Aurora from "@/components/common/Aurora";
 
-
-
-
 export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("participant");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "participant",
+  });
+
+  const [status, setStatus] = useState({
+    error: "",
+    success: "",
+    loading: false,
+  });
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
+    setStatus({ error: "", success: "", loading: true });
 
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        setSuccess("Account created successfully. Redirecting...");
-        setTimeout(() => router.push("/login"), 1500);
-      } else {
-        setError(data.error || "Registration failed");
+      if (!res.ok) {
+        throw new Error(data.error || "Registration failed");
       }
-    } catch {
-      setError("Something went wrong.");
-    } finally {
-      setLoading(false);
+
+      setStatus({
+        error: "",
+        success: "Registration successful! Redirecting...",
+        loading: false,
+      });
+
+      setTimeout(() => router.push("/login"), 1500);
+    } catch (err) {
+      setStatus({
+        error: err.message || "Something went wrong.",
+        success: "",
+        loading: false,
+      });
     }
   };
 
   return (
-    <main className="min-h-screen bg-space-900 relative">
+    <main className="bg-space-900 relative min-h-screen">
       <Navbar />
-      
 
-      {/* Aurora Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <Aurora
           colorStops={["#00ff87", "#60a5fa", "#00ff87"]}
@@ -63,113 +76,91 @@ export default function RegisterPage() {
         />
       </div>
 
-      <section className="relative z-10 flex items-center justify-center py-32 px-4">
-        
-
+      <section className="relative z-10 flex justify-center py-32 px-4">
         <div className="glass-card border-glow w-full max-w-md rounded-2xl p-10 backdrop-blur-xl">
 
-          <div className="relative">
-  <button
-    onClick={() => router.push("/")}
-    className="absolute top-0 left-0 text-slate-400 hover:text-neon-cyan transition"
-  >
-    <ArrowLeft className="w-5 h-5" />
-  </button>
+          <div className="relative mb-8">
+            <button
+              onClick={() => router.push("/")}
+              className="absolute -top-2 -left-2 p-2 rounded-lg text-slate-400 hover:text-neon-cyan hover:bg-white/5 transition"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
 
-  <div className="text-center mb-8">
-    <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
-      Create Account
-    </h2>
-    <p className="text-slate-400 text-sm font-mono">
-      Join EventFlow and start organizing
-    </p>
-  </div>
-</div>
-
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
+                Create Account
+              </h2>
+              <p className="text-slate-400 text-sm font-mono">
+                Join EventFlow and start organizing
+              </p>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
 
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-mono">
-                Full Name
-              </label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={loading}
-                placeholder="Your name"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
-              />
-            </div>
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={status.loading}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
+            />
 
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-mono">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                placeholder="you@example.com"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
-              />
-            </div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={status.loading}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
+            />
 
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-mono">
-                Password
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                placeholder="Create a secure password"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
-              />
-            </div>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={status.loading}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
+            />
 
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-mono">
-                I am a
-              </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                disabled={loading}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
-              >
-                <option value="participant">Participant</option>
-                <option value="mentor">Mentor</option>
-                <option value="judge">Judge</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              disabled={status.loading}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-neon-cyan/50 focus:ring-1 focus:ring-neon-cyan/40 transition"
+            >
+              <option value="participant">Participant</option>
+              <option value="mentor">Mentor</option>
+              <option value="judge">Judge</option>
+              <option value="admin">Admin</option>
+            </select>
 
-            {error && (
+            {status.error && (
               <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-center">
-                {error}
+                {status.error}
               </div>
             )}
 
-            {success && (
+            {status.success && (
               <div className="text-green-400 text-sm bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-center">
-                {success}
+                {status.success}
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={status.loading}
               className="btn-neon w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold tracking-wide text-sm"
             >
-              {loading ? "Creating Account..." : "Sign Up"}
-              {!loading && <ArrowRight className="w-4 h-4" />}
+              {status.loading ? "Creating Account..." : "Sign Up"}
+              {!status.loading && <ArrowRight className="w-4 h-4" />}
             </button>
 
             <div className="mt-6 text-center text-sm text-slate-500 font-mono">
