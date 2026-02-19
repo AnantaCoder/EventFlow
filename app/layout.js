@@ -1,7 +1,6 @@
 import "./globals.css";
 import Providers from "./providers";
-import GlobalAnnouncements from "@/components/GlobalAnnouncements";
-import { ThemeProvider } from "@/context/ThemeContext";
+
 
 export const metadata = {
   title: "EventFlow – Modular Hackathon Infra System",
@@ -25,4 +24,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
