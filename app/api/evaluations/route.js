@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db-connect";
 import Evaluation from "@/models/Evaluation";
 import Submission from "@/models/Submission";
@@ -36,10 +36,10 @@ export async function POST(req) {
     // Verify user role - only judges and admins can evaluate
     const userRole = session.user.role;
     if (userRole !== "judge" && userRole !== "admin" && userRole !== "organizer") {
-        return NextResponse.json(
-            { error: "Only judges can evaluate submissions" },
-            { status: 403 }
-        );
+      return NextResponse.json(
+        { error: "Only judges can evaluate submissions" },
+        { status: 403 }
+      );
     }
 
     // Check if the user has already evaluated this submission
@@ -60,10 +60,10 @@ export async function POST(req) {
       judge: session.user.id,
       event: submission.event,
       scores: {
-          innovation: Number(scores.innovation),
-          execution: Number(scores.execution),
-          presentation: Number(scores.presentation),
-          impact: Number(scores.impact)
+        innovation: Number(scores.innovation),
+        execution: Number(scores.execution),
+        presentation: Number(scores.presentation),
+        impact: Number(scores.impact)
       },
       feedback,
     });

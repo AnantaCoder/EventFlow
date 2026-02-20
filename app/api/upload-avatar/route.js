@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import connectDB from "@/lib/db-connect";
 import User from "@/models/User";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import sharp from "sharp";
 
 export async function POST(req) {

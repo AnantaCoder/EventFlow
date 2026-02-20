@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db-connect";
 import Certificate from "@/models/Certificate";
 import Event from "@/models/Event";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 
 import PDFDocument from "pdfkit";
 import fs from "fs";
@@ -42,7 +42,7 @@ export async function POST(req) {
 
     // Optional: Check if the user is the organizer of the event
     if (session.user.role !== "admin" && event.organizer && event.organizer.toString() !== session.user.id) {
-       return NextResponse.json(
+      return NextResponse.json(
         { error: "You are not authorized to generate certificates for this event" },
         { status: 403 }
       );

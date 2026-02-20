@@ -3,7 +3,7 @@ import connectDB from "@/lib/db-connect";
 import Submission from "@/models/Submission";
 import Event from "@/models/Event";
 import Team from "@/models/Team";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -41,20 +41,19 @@ export async function POST(req) {
 
         // Parse the request body
         const body = await req.json();
-        const { id, event, team, title, description, repoLink, demoLink } = body;
 
         // --- UPDATE LOGIC ---
-        if (id) {
-            const existingSubmission = await Submission.findById(id);
+        if (body.id) {
+            const existingSubmission = await Submission.findById(body.id);
             if (!existingSubmission) {
                 return NextResponse.json({ error: "Submission not found" }, { status: 404 });
             }
 
             // Update fields
-            existingSubmission.title = title || existingSubmission.title;
-            existingSubmission.description = description || existingSubmission.description;
-            existingSubmission.repoLink = repoLink || existingSubmission.repoLink;
-            existingSubmission.demoLink = demoLink || existingSubmission.demoLink;
+            existingSubmission.title = body.title || existingSubmission.title;
+            existingSubmission.description = body.description || existingSubmission.description;
+            existingSubmission.repoLink = body.repoLink || existingSubmission.repoLink;
+            existingSubmission.demoLink = body.demoLink || existingSubmission.demoLink;
 
             await existingSubmission.save();
 
@@ -65,6 +64,7 @@ export async function POST(req) {
         }
 
         // --- CREATE LOGIC ---
+        const validation = submissionSchema.safeParse(body);
 
         if (!validation.success) {
             return NextResponse.json(

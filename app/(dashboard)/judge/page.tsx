@@ -1,6 +1,9 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-import JudgeDashboardClient from "./JudgeDashboardClient";
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { CheckCircle, AlertCircle, User, FileText, BarChart3, Trophy, Search, Users, Clock, Star, Eye, Calendar, MessageSquare, Save } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 

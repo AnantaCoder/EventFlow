@@ -123,7 +123,7 @@ export default function ProfileDashboardClient({ user }) {
 
             {preview && (
               <div className="mt-4 flex gap-3">
-                <Button onClick={handleUpload} disabled={uploading}>
+                <Button className="" onClick={handleUpload} disabled={uploading}>
                   {uploading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -136,7 +136,7 @@ export default function ProfileDashboardClient({ user }) {
                     </>
                   )}
                 </Button>
-                <Button variant="secondary" onClick={cancelPreview}>
+                <Button className="" variant="secondary" onClick={cancelPreview}>
                   <X className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>

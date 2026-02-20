@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db-connect";
 import Team from "@/models/Team";
 import User from "@/models/User";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 
 const limiter = rateLimit({
-    interval: 60 * 1000, // 1 minute
+  interval: 60 * 1000, // 1 minute
 });
 
 const joinTeamSchema = z.object({
@@ -20,7 +20,7 @@ export async function POST(request) {
   const { isRateLimited } = limiter.check(10, ip); // 10 requests per minute per IP
 
   if (isRateLimited) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   try {
@@ -43,10 +43,10 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    
+
     const { inviteCode } = validation.data;
     const userId = session.user.id;
-    
+
     // Validate user exists and is a participant
     const user = await User.findById(userId);
     if (!user) {
@@ -55,7 +55,7 @@ export async function POST(request) {
         { status: 404 }
       );
     }
-    
+
     // Only participants can join teams
     if (user.role !== 'participant') {
       return NextResponse.json(
@@ -63,19 +63,19 @@ export async function POST(request) {
         { status: 403 }
       );
     }
-    
+
     // Find team by invite code
-    const team = await Team.findOne({ 
-      inviteCode: inviteCode.toUpperCase().trim() 
+    const team = await Team.findOne({
+      inviteCode: inviteCode.toUpperCase().trim()
     }).populate('event', 'title registrationEndDate');
-    
+
     if (!team) {
       return NextResponse.json(
         { error: "Invalid invite code. Please check and try again." },
         { status: 404 }
       );
     }
-    
+
     // Check if event registration is still open
     if (team.event?.registrationDeadline) {
       const now = new Date();
@@ -86,7 +86,7 @@ export async function POST(request) {
         );
       }
     }
-    
+
     // Check if user is already the leader
     if (team.leader.toString() === userId) {
       return NextResponse.json(
@@ -94,7 +94,7 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    
+
     // Check if user is already a member
     if (team.members.includes(userId)) {
       return NextResponse.json(
@@ -102,7 +102,7 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    
+
     // Check if team is full
     if (team.members.length >= team.maxMembers) {
       return NextResponse.json(
@@ -110,7 +110,7 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    
+
     // Check if user is already in another team for the same event
     const existingTeamForEvent = await Team.findOne({
       event: team.event._id,
@@ -119,14 +119,14 @@ export async function POST(request) {
         { members: userId }
       ]
     });
-    
+
     if (existingTeamForEvent) {
       return NextResponse.json(
         { error: "You are already in a team for this event. Leave your current team first." },
         { status: 400 }
       );
     }
-    
+
     // Check if user is already in any team (global check)
     const existingTeam = await Team.findOne({
       $or: [
@@ -134,25 +134,25 @@ export async function POST(request) {
         { members: userId }
       ]
     });
-    
+
     if (existingTeam) {
       return NextResponse.json(
         { error: "You are already in a team. Leave your current team first." },
         { status: 400 }
       );
     }
-    
+
     // Add user to team
     team.members.push(userId);
     await team.save();
-    
+
     await team.populate('leader', 'name email role');
     await team.populate('members', 'name email role');
     await team.populate('event', 'title startDate endDate description');
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       message: "Successfully joined the team!",
-      team 
+      team
     });
   } catch (error) {
     console.error("Error joining team:", error);
