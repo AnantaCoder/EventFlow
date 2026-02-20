@@ -49,11 +49,11 @@ export async function PUT(request) {
 
     const userId = session.user.id;
     const body = await request.json();
-    const { name, bio, avatar } = body;
+    const { name, bio, avatarUrl } = body;
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { name, bio, avatar },
+      { name, bio, avatarUrl },
       { new: true }
     ).select("-password").lean();
 
